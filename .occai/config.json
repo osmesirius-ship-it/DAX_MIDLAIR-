@@ -1,0 +1,16 @@
+{
+  "pip-requirements": 2,
+  "mydata": 2,
+  "Py": 1,
+  "Py-asyncio": 2,
+  "Py-math": 2,
+  "Py-uuid": 2,
+  "Py-typing": 2,
+  "Py-datetime": 2,
+  "Py-": 2,
+  "Py-json": 1,
+  "Py-logging": 2,
+  "Py-dataclasses": 2,
+  "Py-mcp": 2,
+  "Py-src": 2
+}
