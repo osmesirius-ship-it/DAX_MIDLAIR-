@@ -12,5 +12,10 @@
   "Py-logging": 2,
   "Py-dataclasses": 2,
   "Py-mcp": 2,
-  "Py-src": 2
+  "Py-src": 2,
+  "Py-websockets": 2,
+  "Py-fastapi": 2,
+  "Py-llama_cpp": 2,
+  "Py-random": 2,
+  "Py-statistics": 2
 }

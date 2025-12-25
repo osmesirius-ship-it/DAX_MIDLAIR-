@@ -1,0 +1,24 @@
+{
+  "beliefs": {
+    "coherence": 0.7941219212479035,
+    "reliability": 0.9,
+    "learning_rate": 0.1,
+    "confidence": 0.7241219212479033,
+    "last_updated": "2025-12-22T15:41:29.972619"
+  },
+  "memory": [
+    {
+      "type": "cognitive_loop",
+      "loop_id": "loop_4c671407",
+      "goal": "Generate insights from belief state evolution",
+      "success": true,
+      "learning": [
+        "Updated confidence to 0.724",
+        "Updated coherence to 0.794"
+      ],
+      "timestamp": "2025-12-22T15:41:29.975489"
+    }
+  ],
+  "rules": [],
+  "last_updated": "2025-12-22T15:41:29.975493"
+}

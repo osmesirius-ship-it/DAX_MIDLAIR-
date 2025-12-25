@@ -1,0 +1,60 @@
+{
+  "beliefs": {
+    "coherence": 0.8346937894057035,
+    "reliability": 0.9,
+    "learning_rate": 0.07290000000000002,
+    "confidence": 0.8429381182638251,
+    "last_updated": "2025-12-22T15:58:19.089103"
+  },
+  "memory": [
+    {
+      "type": "cognitive_loop",
+      "loop_id": "loop_4d53f381",
+      "goal": "Evaluate cognitive loop effectiveness and adaptation strategies",
+      "success": true,
+      "learning": [
+        "Updated confidence to 0.743",
+        "Decreased learning rate due to high success",
+        "Updated coherence to 0.813"
+      ],
+      "timestamp": "2025-12-22T15:57:18.466743"
+    },
+    {
+      "type": "cognitive_loop",
+      "loop_id": "loop_857f313a",
+      "goal": "Generate insights from belief state evolution and memory patterns",
+      "success": true,
+      "learning": [
+        "Updated confidence to 0.770",
+        "Updated coherence to 0.811"
+      ],
+      "timestamp": "2025-12-22T15:57:48.778130"
+    },
+    {
+      "type": "cognitive_loop",
+      "loop_id": "loop_170d947e",
+      "goal": "who is Brian Perkins",
+      "success": true,
+      "learning": [
+        "Updated confidence to 0.803",
+        "Decreased learning rate due to high success",
+        "Updated coherence to 0.818"
+      ],
+      "timestamp": "2025-12-22T15:58:18.080333"
+    },
+    {
+      "type": "cognitive_loop",
+      "loop_id": "loop_8f33bed6",
+      "goal": "Review recent governance decisions for learning opportunities",
+      "success": true,
+      "learning": [
+        "Updated confidence to 0.843",
+        "Decreased learning rate due to high success",
+        "Updated coherence to 0.835"
+      ],
+      "timestamp": "2025-12-22T15:58:19.089659"
+    }
+  ],
+  "rules": [],
+  "last_updated": "2025-12-22T15:58:19.089663"
+}

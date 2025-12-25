@@ -1,0 +1,35 @@
+{
+  "name": "@dax/mcp-server",
+  "version": "1.0.0",
+  "description": "DAX Governance MCP Server - Recursive governance core for frontier AI models",
+  "main": "dist/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "test": "jest"
+  },
+  "keywords": [
+    "mcp",
+    "governance",
+    "ai-safety",
+    "dax",
+    "recursive-governance"
+  ],
+  "author": "DAX Project",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.25.1",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^20.17.6",
+    "jest": "^29.7.0",
+    "typescript": "^5.7.2"
+  },
+  "bin": {
+    "dax-mcp-server": "dist/index.js"
+  }
+}
