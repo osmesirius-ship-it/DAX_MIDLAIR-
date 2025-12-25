@@ -1,0 +1,25 @@
+{
+  "beliefs": {
+    "coherence": 0.8033499958426129,
+    "reliability": 0.9,
+    "learning_rate": 0.09000000000000001,
+    "confidence": 0.7333499958426127,
+    "last_updated": "2025-12-22T16:07:24.974648"
+  },
+  "memory": [
+    {
+      "type": "cognitive_loop",
+      "loop_id": "loop_ecb9a38c",
+      "goal": "Review recent governance decisions for learning opportunities",
+      "success": true,
+      "learning": [
+        "Updated confidence to 0.733",
+        "Decreased learning rate due to high success",
+        "Updated coherence to 0.803"
+      ],
+      "timestamp": "2025-12-22T16:07:24.976554"
+    }
+  ],
+  "rules": [],
+  "last_updated": "2025-12-22T16:07:24.976558"
+}

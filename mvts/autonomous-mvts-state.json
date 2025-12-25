@@ -1,0 +1,35 @@
+{
+  "beliefs": {
+    "coherence": 0.7945924294858534,
+    "reliability": 0.9,
+    "learning_rate": 0.1,
+    "confidence": 0.7542452504565509,
+    "last_updated": "2025-12-22T15:34:20.318138"
+  },
+  "memory": [
+    {
+      "type": "cognitive_loop",
+      "loop_id": "loop_00217faa",
+      "goal": "Generate insights from memory patterns",
+      "success": true,
+      "learning": [
+        "Updated confidence to 0.727",
+        "Updated coherence to 0.797"
+      ],
+      "timestamp": "2025-12-22T15:32:50.305924"
+    },
+    {
+      "type": "cognitive_loop",
+      "loop_id": "loop_e789a0a9",
+      "goal": "Generate insights from memory patterns",
+      "success": true,
+      "learning": [
+        "Updated confidence to 0.754",
+        "Updated coherence to 0.795"
+      ],
+      "timestamp": "2025-12-22T15:34:20.318651"
+    }
+  ],
+  "rules": [],
+  "last_updated": "2025-12-22T15:34:20.318655"
+}

@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAX EDI Monitor</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .status-healthy { color: #10b981; }
+        .status-degraded { color: #f59e0b; }
+        .status-critical { color: #ef4444; }
+        .status-emergency { color: #991b1b; }
+        .risk-low { background-color: #10b981; }
+        .risk-moderate { background-color: #f59e0b; }
+        .risk-high { background-color: #ef4444; }
+        .risk-critical { background-color: #991b1b; }
+        .knob-container {
+            transition: all 0.3s ease;
+        }
+        .knob-container:hover {
+            transform: scale(1.05);
+        }
+        .metric-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="container mx-auto px-4 py-6">
+        <!-- Header -->
+        <header class="mb-8">
+            <h1 class="text-4xl font-bold text-center mb-2 bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
+                DAX EDI Monitor
+            </h1>
+            <p class="text-center text-gray-400">Extended Detection & Integration Real-time Monitoring</p>
+        </header>
+
+        <!-- Status Bar -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="metric-card rounded-lg p-4">
+                <h3 class="text-sm font-semibold text-gray-400 mb-1">System Status</h3>
+                <p id="system-status" class="text-2xl font-bold">Initializing...</p>
+            </div>
+            <div class="metric-card rounded-lg p-4">
+                <h3 class="text-sm font-semibold text-gray-400 mb-1">Coherence</h3>
+                <p id="coherence-value" class="text-2xl font-bold">0.000</p>
+            </div>
+            <div class="metric-card rounded-lg p-4">
+                <h3 class="text-sm font-semibold text-gray-400 mb-1">Risk Level</h3>
+                <p id="risk-level" class="text-2xl font-bold">Unknown</p>
+            </div>
+            <div class="metric-card rounded-lg p-4">
+                <h3 class="text-sm font-semibold text-gray-400 mb-1">Active Simulations</h3>
+                <p id="sim-count" class="text-2xl font-bold">0</p>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Coherence & Risk Chart -->
+            <div class="metric-card rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Coherence & Risk</h2>
+                <canvas id="coherence-chart" width="400" height="200"></canvas>
+            </div>
+
+            <!-- Salience Map -->
+            <div class="metric-card rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Channel Salience</h2>
+                <canvas id="salience-chart" width="400" height="200"></canvas>
+            </div>
+
+            <!-- Control Knobs -->
+            <div class="metric-card rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">DAX Control Knobs</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="knob-container">
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Focus</label>
+                        <div class="relative">
+                            <input type="range" id="knob-focus" min="0" max="1" step="0.01" value="0.8" 
+                                   class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                            <span id="focus-value" class="text-sm text-gray-400">0.80</span>
+                        </div>
+                    </div>
+                    <div class="knob-container">
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Entanglement</label>
+                        <div class="relative">
+                            <input type="range" id="knob-entanglement" min="0" max="1" step="0.01" value="0.5" 
+                                   class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                            <span id="entanglement-value" class="text-sm text-gray-400">0.50</span>
+                        </div>
+                    </div>
+                    <div class="knob-container">
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Interference</label>
+                        <div class="relative">
+                            <input type="range" id="knob-interference" min="0" max="1" step="0.01" value="0.3" 
+                                   class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                            <span id="interference-value" class="text-sm text-gray-400">0.30</span>
+                        </div>
+                    </div>
+                    <div class="knob-container">
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Exploration</label>
+                        <div class="relative">
+                            <input type="range" id="knob-exploration" min="0" max="1" step="0.01" value="0.4" 
+                                   class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                            <span id="exploration-value" class="text-sm text-gray-400">0.40</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase Signature -->
+            <div class="metric-card rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Phase Signature</h2>
+                <canvas id="phase-chart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Simulation Controls -->
+        <div class="metric-card rounded-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">Simulation Controls</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Scenario</label>
+                    <select id="scenario-select" class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg">
+                        <option value="solar_storm">Solar Storm</option>
+                        <option value="micrometeoroid">Micrometeoroid</option>
+                        <option value="sensor_spoof">Sensor Spoof</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Duration (s)</label>
+                    <input type="number" id="duration-input" value="30" min="10" max="300" 
+                           class="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg">
+                </div>
+                <div class="flex items-end">
+                    <button id="start-simulation" 
+                            class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition-colors">
+                        Start Simulation
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Simulations -->
+        <div class="metric-card rounded-lg p-6">
+            <h2 class="text-xl font-semibold mb-4">Active Simulations</h2>
+            <div id="simulations-list" class="space-y-2">
+                <p class="text-gray-400">No active simulations</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let ws = null;
+        let coherenceChart = null;
+        let salienceChart = null;
+        let phaseChart = null;
+        let coherenceHistory = [];
+        let salienceHistory = [];
+        let phaseHistory = [];
+        let maxDataPoints = 100;
+
+        // Initialize charts
+        function initCharts() {
+            // Coherence Chart
+            const coherenceCtx = document.getElementById('coherence-chart').getContext('2d');
+            coherenceChart = new Chart(coherenceCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Coherence',
+                        data: [],
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Risk Score',
+                        data: [],
+                        borderColor: 'rgb(239, 68, 68)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { min: 0, max: 1, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+                        x: { grid: { color: 'rgba(255, 255, 255, 0.1)' } }
+                    },
+                    plugins: {
+                        legend: { labels: { color: 'white' } }
+                    }
+                }
+            });
+
+            // Salience Chart
+            const salienceCtx = document.getElementById('salience-chart').getContext('2d');
+            salienceChart = new Chart(salienceCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        { label: 'Thermal', data: [], borderColor: 'rgb(239, 68, 68)', tension: 0.4 },
+                        { label: 'Vibration', data: [], borderColor: 'rgb(245, 158, 11)', tension: 0.4 },
+                        { label: 'EM', data: [], borderColor: 'rgb(59, 130, 246)', tension: 0.4 },
+                        { label: 'Power', data: [], borderColor: 'rgb(16, 185, 129)', tension: 0.4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { min: 0, max: 1, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+                        x: { grid: { color: 'rgba(255, 255, 255, 0.1)' } }
+                    },
+                    plugins: {
+                        legend: { labels: { color: 'white' } }
+                    }
+                }
+            });
+
+            // Phase Signature Chart
+            const phaseCtx = document.getElementById('phase-chart').getContext('2d');
+            phaseChart = new Chart(phaseCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        { label: 'Entropy', data: [], borderColor: 'rgb(168, 85, 247)', tension: 0.4 },
+                        { label: 'Phase Drift', data: [], borderColor: 'rgb(236, 72, 153)', tension: 0.4 },
+                        { label: 'XCorr Peak', data: [], borderColor: 'rgb(34, 197, 94)', tension: 0.4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { min: 0, max: 1, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+                        x: { grid: { color: 'rgba(255, 255, 255, 0.1)' } }
+                    },
+                    plugins: {
+                        legend: { labels: { color: 'white' } }
+                    }
+                }
+            });
+        }
+
+        // WebSocket connection
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws/edi`;
+            
+            ws = new WebSocket(wsUrl);
+            
+            ws.onopen = function() {
+                console.log('WebSocket connected');
+                updateStatus('Connected', 'status-healthy');
+                
+                // Subscribe to updates
+                ws.send(JSON.stringify({ type: 'subscribe' }));
+            };
+            
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                handleWebSocketMessage(data);
+            };
+            
+            ws.onclose = function() {
+                console.log('WebSocket disconnected');
+                updateStatus('Disconnected', 'status-critical');
+                // Attempt to reconnect after 3 seconds
+                setTimeout(connectWebSocket, 3000);
+            };
+            
+            ws.onerror = function(error) {
+                console.error('WebSocket error:', error);
+                updateStatus('Error', 'status-critical');
+            };
+        }
+
+        // Handle WebSocket messages
+        function handleWebSocketMessage(data) {
+            switch (data.type) {
+                case 'edi_update':
+                    updateEDI(data.data);
+                    break;
+                case 'stream_update':
+                    updateStream(data);
+                    break;
+                case 'simulation_completed':
+                    handleSimulationCompleted(data);
+                    break;
+                case 'simulation_error':
+                    handleSimulationError(data);
+                    break;
+                case 'pong':
+                    // Heartbeat response
+                    break;
+            }
+        }
+
+        // Update EDI display
+        function updateEDI(ediData) {
+            // Update status
+            const health = ediData.system_health || {};
+            updateStatus(health.status || 'Unknown', `status-${health.status || 'unknown'}`);
+            
+            // Update coherence
+            const coherence = ediData.coherence || 0;
+            document.getElementById('coherence-value').textContent = coherence.toFixed(3);
+            
+            // Update risk level
+            const risk = ediData.risk_assessment || {};
+            document.getElementById('risk-level').textContent = risk.level || 'Unknown';
+            updateRiskLevel(risk.level || 'unknown');
+            
+            // Update knobs
+            const knobs = ediData.knobs || {};
+            updateKnobs(knobs);
+            
+            // Update charts
+            updateCharts(ediData);
+        }
+
+        // Update stream data
+        function updateStream(data) {
+            if (data.health) {
+                updateStatus(data.health.status || 'Unknown', `status-${data.health.status || 'unknown'}`);
+            }
+        }
+
+        // Update charts with new data
+        function updateCharts(ediData) {
+            const timestamp = new Date().toLocaleTimeString();
+            
+            // Update coherence chart
+            if (coherenceChart) {
+                const coherence = ediData.coherence || 0;
+                const riskScore = (ediData.risk_assessment || {}).score || 0;
+                
+                coherenceChart.data.labels.push(timestamp);
+                coherenceChart.data.datasets[0].data.push(coherence);
+                coherenceChart.data.datasets[1].data.push(riskScore);
+                
+                // Keep only last N points
+                if (coherenceChart.data.labels.length > maxDataPoints) {
+                    coherenceChart.data.labels.shift();
+                    coherenceChart.data.datasets[0].data.shift();
+                    coherenceChart.data.datasets[1].data.shift();
+                }
+                
+                coherenceChart.update('none');
+            }
+            
+            // Update salience chart
+            if (salienceChart && ediData.salience) {
+                salienceChart.data.labels.push(timestamp);
+                ediData.salience.forEach((value, index) => {
+                    if (salienceChart.data.datasets[index]) {
+                        salienceChart.data.datasets[index].data.push(value);
+                    }
+                });
+                
+                // Keep only last N points
+                if (salienceChart.data.labels.length > maxDataPoints) {
+                    salienceChart.data.labels.shift();
+                    salienceChart.data.datasets.forEach(dataset => {
+                        dataset.data.shift();
+                    });
+                }
+                
+                salienceChart.update('none');
+            }
+            
+            // Update phase signature chart
+            if (phaseChart && ediData.phase_signature) {
+                const phase = ediData.phase_signature;
+                phaseChart.data.labels.push(timestamp);
+                phaseChart.data.datasets[0].data.push(phase.entropy_mean || 0);
+                phaseChart.data.datasets[1].data.push(phase.phase_drift_mean || 0);
+                phaseChart.data.datasets[2].data.push(phase.xcorr_peak_mean || 0);
+                
+                // Keep only last N points
+                if (phaseChart.data.labels.length > maxDataPoints) {
+                    phaseChart.data.labels.shift();
+                    phaseChart.data.datasets.forEach(dataset => {
+                        dataset.data.shift();
+                    });
+                }
+                
+                phaseChart.update('none');
+            }
+        }
+
+        // Update control knobs
+        function updateKnobs(knobs) {
+            ['focus', 'entanglement', 'interference', 'exploration'].forEach(knob => {
+                const value = knobs[knob] || 0;
+                const slider = document.getElementById(`knob-${knob}`);
+                const valueSpan = document.getElementById(`${knob}-value`);
+                
+                if (slider) {
+                    slider.value = value;
+                    valueSpan.textContent = value.toFixed(2);
+                }
+            });
+        }
+
+        // Update status display
+        function updateStatus(status, className) {
+            const statusEl = document.getElementById('system-status');
+            statusEl.textContent = status;
+            statusEl.className = `text-2xl font-bold ${className}`;
+        }
+
+        // Update risk level display
+        function updateRiskLevel(level) {
+            const riskEl = document.getElementById('risk-level');
+            riskEl.textContent = level.charAt(0).toUpperCase() + level.slice(1);
+            riskEl.className = `text-2xl font-bold risk-${level}`;
+        }
+
+        // Handle simulation completed
+        function handleSimulationCompleted(data) {
+            console.log('Simulation completed:', data);
+            loadSimulations();
+        }
+
+        // Handle simulation error
+        function handleSimulationError(data) {
+            console.error('Simulation error:', data);
+            alert(`Simulation error: ${data.error}`);
+        }
+
+        // Start simulation
+        async function startSimulation() {
+            const scenario = document.getElementById('scenario-select').value;
+            const duration = parseInt(document.getElementById('duration-input').value);
+            
+            try {
+                const response = await fetch('/api/edi/simulation/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        scenario: scenario,
+                        duration: duration,
+                        fs: 200,
+                        window_size: 2.0
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('Simulation started:', result);
+                    loadSimulations();
+                } else {
+                    throw new Error('Failed to start simulation');
+                }
+            } catch (error) {
+                console.error('Error starting simulation:', error);
+                alert('Failed to start simulation');
+            }
+        }
+
+        // Load active simulations
+        async function loadSimulations() {
+            try {
+                const response = await fetch('/api/edi/simulations');
+                if (response.ok) {
+                    const data = await response.json();
+                    updateSimulationsList(data.simulations);
+                    document.getElementById('sim-count').textContent = data.count;
+                }
+            } catch (error) {
+                console.error('Error loading simulations:', error);
+            }
+        }
+
+        // Update simulations list
+        function updateSimulationsList(simulations) {
+            const listEl = document.getElementById('simulations-list');
+            
+            if (simulations.length === 0) {
+                listEl.innerHTML = '<p class="text-gray-400">No active simulations</p>';
+                return;
+            }
+            
+            listEl.innerHTML = simulations.map(sim => `
+                <div class="bg-gray-800 rounded-lg p-4">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="font-semibold">${sim.scenario}</h3>
+                            <p class="text-sm text-gray-400">ID: ${sim.simulator_id}</p>
+                            <p class="text-sm text-gray-400">Time: ${sim.current_time.toFixed(1)}s / ${sim.duration}s</p>
+                            <p class="text-sm text-gray-400">States: ${sim.states_count}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="px-2 py-1 rounded text-sm ${
+                                sim.status === 'running' ? 'bg-green-600' : 'bg-blue-600'
+                            }">${sim.status}</span>
+                            <button onclick="deleteSimulation('${sim.simulator_id}')" 
+                                    class="ml-2 px-2 py-1 bg-red-600 hover:bg-red-700 rounded text-sm">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Delete simulation
+        async function deleteSimulation(simulatorId) {
+            try {
+                const response = await fetch(`/api/edi/simulation/${simulatorId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    loadSimulations();
+                } else {
+                    throw new Error('Failed to delete simulation');
+                }
+            } catch (error) {
+                console.error('Error deleting simulation:', error);
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Simulation start button
+            document.getElementById('start-simulation').addEventListener('click', startSimulation);
+            
+            // Knob sliders (read-only in monitor mode)
+            ['focus', 'entanglement', 'interference', 'exploration'].forEach(knob => {
+                const slider = document.getElementById(`knob-${knob}`);
+                const valueSpan = document.getElementById(`${knob}-value`);
+                
+                slider.addEventListener('input', function() {
+                    valueSpan.textContent = parseFloat(this.value).toFixed(2);
+                });
+                
+                // Make sliders read-only for monitoring
+                slider.addEventListener('change', function() {
+                    // Reset to original value (monitoring only)
+                    this.value = this.defaultValue;
+                    valueSpan.textContent = parseFloat(this.value).toFixed(2);
+                });
+            });
+        }
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
+            setupEventListeners();
+            connectWebSocket();
+            loadSimulations();
+            
+            // Periodic updates
+            setInterval(loadSimulations, 5000);
+            
+            // WebSocket heartbeat
+            setInterval(() => {
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'ping' }));
+                }
+            }, 30000);
+        });
+    </script>
+</body>
+</html>
